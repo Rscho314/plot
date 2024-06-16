@@ -144,6 +144,7 @@
          [put-text (->* [String (Vectorof Real)] [Anchor Real Real Boolean Integer] Void)]
          [put-glyphs (->* [(Listof (Vectorof Real)) Point-Sym Nonnegative-Real] [Integer] Void)]
          [put-arrow (->* ((Vectorof Real) (Vectorof Real)) (Boolean) Void)]
+         [put-voxels (-> (Vectorof (Vectorof (Vectorof Boolean))) Void)]
          [get-plot-metrics-functions (-> Plot-Metrics-Functions)]
          ))
 
@@ -1641,6 +1642,62 @@
                 [else
                  (put-line v1 v2)]))))
 
+    (define/public (put-voxels arr3d)
+      (let* ([coords (for*/list : (Listof (U (Vector Integer Integer Integer) Void))
+                                ([(i x) (in-indexed arr3d)]
+                                 [(j y) (in-indexed i)]
+                                 [(k z) (in-indexed j)])
+                       (let ([cs (vector x y z)])
+                         (ann (when k ; in-bounds? check necessary ?
+                             cs)
+                              (U (Vector Integer Integer Integer) Void))))]
+             [voxels (for/list : (Listof (Listof (List FlVector FlVector FlVector FlVector FlVector FlVector)))
+                              ([point (in-list coords)])
+                      (define x-min (- (vector-ref point 0) 0.5))
+                      (define x-mid (->fl (vector-ref point 0)))
+                      (define x-max (+ (vector-ref point 0) 0.5))
+                      (define y-min (- (vector-ref point 1) 0.5))
+                      (define y-mid (->fl (vector-ref point 1)))
+                      (define y-max (+ (vector-ref point 1) 0.5))
+                      (define z-min (- (vector-ref point 2) 0.5))
+                      (define z-mid (->fl (vector-ref point 2)))
+                      (define z-max (+ (vector-ref point 2) 0.5))
+                       ; face: center normal vertices
+                      (list
+                       ;; Bottom (z-min) face
+                       (list (flvector x-mid y-mid z-min) (flvector 0.0 0.0 -1.0)
+                             (flvector x-min y-min z-min) (flvector x-max y-min z-min)
+                             (flvector x-max y-max z-min) (flvector x-min y-max z-min))
+                       ;; Top (z-max) face
+                       (list (flvector x-mid y-mid z-max) (flvector 0.0 0.0 1.0)
+                             (flvector x-min y-min z-max) (flvector x-max y-min z-max)
+                             (flvector x-max y-max z-max) (flvector x-min y-max z-max))
+                       ;; Front (y-min) face
+                       (list (flvector x-mid y-min z-mid) (flvector 0.0 -1.0 0.0)
+                             (flvector x-min y-min z-min) (flvector x-max y-min z-min)
+                             (flvector x-max y-min z-max) (flvector x-min y-min z-max))
+                       ;; Back (y-max) face
+                       (list (flvector x-mid y-max z-mid) (flvector 0.0 1.0 0.0)
+                             (flvector x-min y-max z-min) (flvector x-max y-max z-min)
+                             (flvector x-max y-max z-max) (flvector x-min y-max z-max))
+                       ;; Left (x-min) face
+                       (list (flvector x-min y-mid z-mid) (flvector -1.0 0.0 0.0)
+                             (flvector x-min y-min z-min) (flvector x-min y-max z-min)
+                             (flvector x-min y-max z-max) (flvector x-min y-min z-max))
+                       ;; Right (x-max) face
+                       (list (flvector x-max y-mid z-mid) (flvector 1.0 0.0 0.0)
+                             (flvector x-max y-min z-min) (flvector x-max y-max z-min)
+                             (flvector x-max y-max z-max) (flvector x-max y-min z-max))))])
+        (define ls (list #t #t #t #t))
+        (for* ([voxel (in-list voxels)]
+               [face (in-list voxel)])
+          (match-define (list center normal vs ...) face)
+          (add-shape! plot3d-area-layer
+                      (poly (poly-data alpha center
+                                       pen-color pen-width pen-style
+                                       brush-color brush-style 'front)
+                            vs ls normal)))))
+    
     (define/public (get-plot-metrics-functions)
       (list (let ([bounds bounds-rect]
                   [vect : (Option (Immutable-Vector (Immutable-Vector Real Real) (Immutable-Vector Real Real) (Immutable-Vector Real Real))) #f])
@@ -1661,12 +1718,12 @@
                     (let* ([v1 (norm->plot (view->norm (flvector 0.0 0.0 0.0)))]
                            [v2 (norm->plot (view->norm (flvector 0.0 1.0 0.0)))]
                            [v3 (for/vector : (Vectorof Real)
-                                 ([i (in-vector v1)]
-                                  [j (in-vector v2)])
+                                           ([i (in-vector v1)]
+                                            [j (in-vector v2)])
                                  (- j i))]
                            [norm (sqrt (assert (for/sum : Real ([i (in-vector v3)]) (* i i)) positive?))]
                            [ans (for/vector : (Vectorof Real)
-                                  ([i (in-vector v3)])
+                                            ([i (in-vector v3)])
                                   (/ i norm))])
                       (set! v ans)
                       ans))))))
