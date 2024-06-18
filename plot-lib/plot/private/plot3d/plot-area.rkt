@@ -144,7 +144,7 @@
          [put-text (->* [String (Vectorof Real)] [Anchor Real Real Boolean Integer] Void)]
          [put-glyphs (->* [(Listof (Vectorof Real)) Point-Sym Nonnegative-Real] [Integer] Void)]
          [put-arrow (->* ((Vectorof Real) (Vectorof Real)) (Boolean) Void)]
-         [put-voxels (-> (Vectorof (Vectorof (Vectorof Boolean))) Void)]
+         [put-voxels (-> (Vector (Vector (Vectorof Boolean))) Void)]
          [get-plot-metrics-functions (-> Plot-Metrics-Functions)]
          ))
 
@@ -398,7 +398,7 @@
                 0.0
                 (fl (/ (- area-y-mid y) area-per-view-z))))
 
-    (: dc->plot (-> (Vectorof Real)  (Vectorof Real)))
+    (: dc->plot (-> (Vectorof Real) (Vectorof Real)))
     (define (dc->plot v)
       (norm->plot (view->norm (dc->view v))))
 

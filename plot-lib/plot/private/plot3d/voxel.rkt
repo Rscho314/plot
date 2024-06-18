@@ -3,7 +3,7 @@
 (require typed/racket/class
          plot/utils)
 
-(provide all-defined-out)
+(provide (all-defined-out))
 
 ;; =====================================================
 
