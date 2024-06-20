@@ -40,6 +40,7 @@
                 #:line-style [line-style (rectangle-line-style)]
                 #:alpha [alpha (rectangle-alpha)]
                 #:label [label #f])
+  (displayln "Yahooooooooooooooooo !!! :-)")
   (define fail/kw (make-raise-keyword-error 'voxels))
   (cond
     [(not (rational? line-width))  (fail/kw "rational?" '#:line-width line-width)]

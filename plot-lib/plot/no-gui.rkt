@@ -176,6 +176,10 @@
  discrete-histogram3d
  stacked-histogram3d)
 
+(require "private/plot3d/voxel.rkt")
+(provide
+ matrix3d)
+
 (require "private/plot3d/decoration.rkt")
 (provide
  point-label3d)
