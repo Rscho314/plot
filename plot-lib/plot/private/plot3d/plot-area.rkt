@@ -144,7 +144,7 @@
          [put-text (->* [String (Vectorof Real)] [Anchor Real Real Boolean Integer] Void)]
          [put-glyphs (->* [(Listof (Vectorof Real)) Point-Sym Nonnegative-Real] [Integer] Void)]
          [put-arrow (->* ((Vectorof Real) (Vectorof Real)) (Boolean) Void)]
-         [put-voxels (-> (Vector (Vector (Vectorof Boolean))) Void)]
+         [put-voxels (-> (Vectorof (Vectorof (Vectorof Boolean))) Void)]
          [get-plot-metrics-functions (-> Plot-Metrics-Functions)]
          ))
 
@@ -1646,11 +1646,9 @@
       (let* ([coords (for*/list : (Listof (U (Vector Integer Integer Integer) Void))
                                 ([(i x) (in-indexed arr3d)]
                                  [(j y) (in-indexed i)]
-                                 [(k z) (in-indexed j)])
-                       (let ([cs (vector x y z)])
-                         (ann (when k ; in-bounds? check necessary ?
-                             cs)
-                              (U (Vector Integer Integer Integer) Void))))]
+                                 [(k z) (in-indexed j)]
+                                 #:when k)
+                       (vector x y z))]
              [voxels (for/list : (Listof (Listof (List FlVector FlVector FlVector FlVector FlVector FlVector)))
                               ([point (in-list coords)])
                       (define x-min (- (vector-ref point 0) 0.5))

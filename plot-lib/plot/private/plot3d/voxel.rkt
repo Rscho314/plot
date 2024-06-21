@@ -10,7 +10,7 @@
 
 ;; =====================================================
 
-(: matrix3d-render-proc (-> (Vector (Vector (Vectorof Boolean)))
+(: matrix3d-render-proc (-> (Vectorof (Vectorof (Vectorof Boolean)))
                             Plot-Color Plot-Brush-Style
                             Plot-Color Nonnegative-Real Plot-Pen-Style
                             Nonnegative-Real
@@ -22,7 +22,7 @@
   (send area put-voxels vs))
 
 (:: matrix3d
-    (->* [(Vector (Vector (Vectorof Boolean)))]
+    (->* [(Vectorof (Vectorof (Vectorof Boolean)))]
          [#:color Plot-Color
           #:style Plot-Brush-Style
           #:line-color Plot-Color
@@ -40,7 +40,6 @@
                 #:line-style [line-style (rectangle-line-style)]
                 #:alpha [alpha (rectangle-alpha)]
                 #:label [label #f])
-  (displayln "Yahooooooooooooooooo !!! :-)")
   (define fail/kw (make-raise-keyword-error 'voxels))
   (cond
     [(not (rational? line-width))  (fail/kw "rational?" '#:line-width line-width)]
@@ -50,9 +49,9 @@
      (let ([x-min 0]
            [y-min 0]
            [z-min 0]
-           [x-max (vector-length vs)]
-           [y-max (vector-length (vector-ref vs 0))]
-           [z-max (vector-length (vector-ref (vector-ref vs 0) 0))])
+           [x-max (- (vector-length vs) 1)]
+           [y-max (- (vector-length (vector-ref vs 0)) 1)]
+           [z-max (- (vector-length (vector-ref (vector-ref vs 0) 0)) 1)])
        (renderer3d (vector (ivl x-min x-max) (ivl y-min y-max) (ivl z-min z-max)) #f
                    default-ticks-fun
                    (and label (λ (_) (rectangle-legend-entry
