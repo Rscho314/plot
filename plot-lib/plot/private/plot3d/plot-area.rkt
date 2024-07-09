@@ -1651,41 +1651,54 @@
                        (vector x y z))]
              [voxels (for/list : (Listof (Listof (List FlVector FlVector FlVector FlVector FlVector FlVector)))
                               ([point (in-list coords)])
-                      (define x-min (- (vector-ref point 0) 0.5))
-                      (define x-mid (->fl (vector-ref point 0)))
-                      (define x-max (+ (vector-ref point 0) 0.5))
-                      (define y-min (- (vector-ref point 1) 0.5))
-                      (define y-mid (->fl (vector-ref point 1)))
-                      (define y-max (+ (vector-ref point 1) 0.5))
-                      (define z-min (- (vector-ref point 2) 0.5))
-                      (define z-mid (->fl (vector-ref point 2)))
-                      (define z-max (+ (vector-ref point 2) 0.5))
-                       ; face: center normal vertices
-                      (list
-                       ;; Bottom (z-min) face
-                       (list (flvector x-mid y-mid z-min) (flvector 0.0 0.0 -1.0)
-                             (flvector x-min y-min z-min) (flvector x-max y-min z-min)
-                             (flvector x-max y-max z-min) (flvector x-min y-max z-min))
-                       ;; Top (z-max) face
-                       (list (flvector x-mid y-mid z-max) (flvector 0.0 0.0 1.0)
-                             (flvector x-min y-min z-max) (flvector x-max y-min z-max)
-                             (flvector x-max y-max z-max) (flvector x-min y-max z-max))
-                       ;; Front (y-min) face
-                       (list (flvector x-mid y-min z-mid) (flvector 0.0 -1.0 0.0)
-                             (flvector x-min y-min z-min) (flvector x-max y-min z-min)
-                             (flvector x-max y-min z-max) (flvector x-min y-min z-max))
-                       ;; Back (y-max) face
-                       (list (flvector x-mid y-max z-mid) (flvector 0.0 1.0 0.0)
-                             (flvector x-min y-max z-min) (flvector x-max y-max z-min)
-                             (flvector x-max y-max z-max) (flvector x-min y-max z-max))
-                       ;; Left (x-min) face
-                       (list (flvector x-min y-mid z-mid) (flvector -1.0 0.0 0.0)
-                             (flvector x-min y-min z-min) (flvector x-min y-max z-min)
-                             (flvector x-min y-max z-max) (flvector x-min y-min z-max))
-                       ;; Right (x-max) face
-                       (list (flvector x-max y-mid z-mid) (flvector 1.0 0.0 0.0)
-                             (flvector x-max y-min z-min) (flvector x-max y-max z-min)
-                             (flvector x-max y-max z-max) (flvector x-max y-min z-max))))])
+                       (let* ([voxel-x-min (- (vector-ref point 0) 0.5)]
+                              [voxel-y-min (- (vector-ref point 1) 0.5)]
+                              [voxel-z-min (- (vector-ref point 2) 0.5)]
+                              [voxel-x-max (+ (vector-ref point 0) 0.5)]
+                              [voxel-y-max (+ (vector-ref point 1) 0.5)]
+                              [voxel-z-max (+ (vector-ref point 2) 0.5)]
+                              [voxel-min (plot->norm (vector (inexact->exact voxel-x-min)
+                                                             (inexact->exact voxel-y-min)
+                                                             (inexact->exact voxel-z-min)))]
+                              [voxel-max (plot->norm (vector (inexact->exact voxel-x-max)
+                                                             (inexact->exact voxel-y-max)
+                                                             (inexact->exact voxel-z-max)))]
+                              [x-min (flvector-ref voxel-min 0)]
+                              [x-max  (flvector-ref voxel-max 0)]
+                              [x-mid (* 0.5 (+ x-min x-max))]
+                              [y-min (flvector-ref voxel-min 1)]
+                              [y-max  (flvector-ref voxel-max 1)]
+                              [y-mid  (* 0.5 (+ y-min y-max))]
+                              [z-min (flvector-ref voxel-min 2)]
+                              [z-max  (flvector-ref voxel-max 2)]
+                              [z-mid  (* 0.5 (+ z-min z-max))]
+                              )
+                         ; face: center normal vertices
+                         (list
+                          ;; Bottom (z-min) face
+                          (list (flvector x-mid y-mid z-min) (flvector 0.0 0.0 -1.0)
+                                (flvector x-min y-min z-min) (flvector x-max y-min z-min)
+                                (flvector x-max y-max z-min) (flvector x-min y-max z-min))
+                          ;; Top (z-max) face
+                          (list (flvector x-mid y-mid z-max) (flvector 0.0 0.0 1.0)
+                                (flvector x-min y-min z-max) (flvector x-max y-min z-max)
+                                (flvector x-max y-max z-max) (flvector x-min y-max z-max))
+                          ;; Front (y-min) face
+                          (list (flvector x-mid y-min z-mid) (flvector 0.0 -1.0 0.0)
+                                (flvector x-min y-min z-min) (flvector x-max y-min z-min)
+                                (flvector x-max y-min z-max) (flvector x-min y-min z-max))
+                          ;; Back (y-max) face
+                          (list (flvector x-mid y-max z-mid) (flvector 0.0 1.0 0.0)
+                                (flvector x-min y-max z-min) (flvector x-max y-max z-min)
+                                (flvector x-max y-max z-max) (flvector x-min y-max z-max))
+                          ;; Left (x-min) face
+                          (list (flvector x-min y-mid z-mid) (flvector -1.0 0.0 0.0)
+                                (flvector x-min y-min z-min) (flvector x-min y-max z-min)
+                                (flvector x-min y-max z-max) (flvector x-min y-min z-max))
+                          ;; Right (x-max) face
+                          (list (flvector x-max y-mid z-mid) (flvector 1.0 0.0 0.0)
+                                (flvector x-max y-min z-min) (flvector x-max y-max z-min)
+                                (flvector x-max y-max z-max) (flvector x-max y-min z-max)))))])
         (define ls (list #t #t #t #t))
         (for* ([voxel (in-list voxels)]
                [face (in-list voxel)])

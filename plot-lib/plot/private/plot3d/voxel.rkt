@@ -44,7 +44,7 @@
   (cond
     [(not (rational? line-width))  (fail/kw "rational?" '#:line-width line-width)]
     [(or (> alpha 1) (not (rational? alpha)))  (fail/kw "real in [0,1]" '#:alpha alpha)]
-    [(null? vs)  empty-renderer3d]
+    [(null? vs) empty-renderer3d]
     [else
      (let ([x-min 0]
            [y-min 0]
@@ -57,7 +57,7 @@
                    (and label (λ (_) (rectangle-legend-entry
                                       label color style line-color line-width line-style)))
                    (matrix3d-render-proc vs color style line-color line-width line-style
-                                             alpha)))]))
+                                         alpha)))]))
 
 
 
